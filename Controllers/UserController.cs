@@ -33,7 +33,7 @@ namespace NetCoreReact.Controllers
                     if (user.Password.Replace(" ", "") == Encrypt(login.Password))
                     {
                         if (!user.IsConfirmed)
-                            return Ok(new Response { Message = "Su cuenta necesita ser activada, por favor chequeá tu email", Status = false });
+                            return Ok(new Response { Message = "Your account needed to be actived, please check your email", Status = false });
                         else
                             return Ok(new Response { Message = "Success", Status = true });
                     }
@@ -60,8 +60,26 @@ namespace NetCoreReact.Controllers
 
         // POST: api/User
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] UserViewModel user)
         {
+            try
+            {
+                User auxUser = new User();
+                auxUser.Name = user.Name;
+                auxUser.Password = this.decrypt(user.Password);
+                auxUser.Email = user.Email;
+                auxUser.UserName = user.UserName;
+                auxUser.IsSuperUser = false;
+                auxUser.IsConfirmed = false;
+                auxUser.CreationDate = DateTime.Now;
+                context.User.Add(auxUser);
+                context.SaveChanges();
+                return Ok("The user was created successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // PUT: api/User/5

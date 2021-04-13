@@ -54,7 +54,7 @@ namespace NetCoreReact.Controllers
             {
                 context.Movement.Add(movement);
                 context.SaveChanges();
-                return CreatedAtRoute("GetManager", new { id = movement.Id }, movement);
+                return CreatedAtRoute("GetMovement", new { id = movement.Id }, movement);
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace NetCoreReact.Controllers
                 {
                     context.Entry(value).State = EntityState.Modified;
                     context.SaveChanges();
-                    return CreatedAtRoute("GetManager", new { id = value.Id }, value);
+                    return CreatedAtRoute("GetMovement", new { id = value.Id }, value);
                 }
                 else
                     return BadRequest();
