@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetCoreReact.Context;
+using NetCoreReact.Context.Repositories;
 using NetCoreReact.Model;
 
 namespace NetCoreReact.Controllers
@@ -15,10 +16,12 @@ namespace NetCoreReact.Controllers
     public class MovementController : ControllerBase
     {
         private readonly AppDbContext context;
+        private readonly IUserRepository userContext;
 
-        public MovementController(AppDbContext context)
+        public MovementController(AppDbContext context, IUserRepository userRepository)
         {
             this.context = context;
+            this.userContext = userRepository;
         }
         // GET: api/Manager
         [HttpGet]
