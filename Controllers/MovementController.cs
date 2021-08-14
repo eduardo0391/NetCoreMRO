@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetCoreReact.Context;
@@ -15,20 +12,20 @@ namespace NetCoreReact.Controllers
     [ApiController]
     public class MovementController : ControllerBase
     {
-        private readonly AppDbContext context;
-        private readonly IUserRepository userContext;
+        private readonly AppDbContext _context;
+        private readonly IUserRepository _userContext;
 
-        public MovementController(AppDbContext context, IUserRepository userRepository)
+        public MovementController(AppDbContext context, IUserRepository userRepository )
         {
-            this.context = context;
-            this.userContext = userRepository;
+            this._context = context;
+            this._userContext = userRepository;
         }
         // GET: api/Manager
         [HttpGet]
         public ActionResult Get()
         {
             try {
-                return Ok(context.Movement.ToList());
+                return Ok(_context.Movement.ToList());
             }
             catch (Exception ex) {
                 return BadRequest(ex.Message);
@@ -41,7 +38,7 @@ namespace NetCoreReact.Controllers
         {
             try
             {
-                return Ok(context.Movement.FirstOrDefault(x => x.Id == id));
+                return Ok(_context.Movement.FirstOrDefault(x => x.Id == id));
             }
             catch(Exception ex)
             {
@@ -55,8 +52,8 @@ namespace NetCoreReact.Controllers
         {
             try
             {
-                context.Movement.Add(movement);
-                context.SaveChanges();
+                _context.Movement.Add(movement);
+                _context.SaveChanges();
                 return CreatedAtRoute("GetMovement", new { id = movement.Id }, movement);
             }
             catch (Exception ex)
@@ -73,8 +70,8 @@ namespace NetCoreReact.Controllers
             {
                 if (id == value.Id)
                 {
-                    context.Entry(value).State = EntityState.Modified;
-                    context.SaveChanges();
+                    _context.Entry(value).State = EntityState.Modified;
+                    _context.SaveChanges();
                     return CreatedAtRoute("GetMovement", new { id = value.Id }, value);
                 }
                 else
@@ -92,11 +89,11 @@ namespace NetCoreReact.Controllers
         {
             try
             {
-                var manager = context.Movement.FirstOrDefault(x=>x.Id == id);
+                var manager = _context.Movement.FirstOrDefault(x=>x.Id == id);
                 if (manager != null)
                 {
-                    context.Movement.Remove(manager);
-                    context.SaveChanges();
+                    _context.Movement.Remove(manager);
+                    _context.SaveChanges();
                     return Ok(id);
                 }
                 else

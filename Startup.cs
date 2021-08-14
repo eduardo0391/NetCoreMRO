@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetCoreReact.Context;
 using NetCoreReact.Context.Repositories;
+using NetCoreReact.Helpers;
 
 namespace NetCoreReact
 {
@@ -31,6 +32,7 @@ namespace NetCoreReact
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<JWTService>();
             services.AddDbContextPool<AppDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("Conexion")));
         }

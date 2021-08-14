@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetCoreReact.Context;
 using NetCoreReact.Context.Repositories;
+using NetCoreReact.Helpers;
 using NetCoreReact.Model;
 using NetCoreReact.Model.ViewModel;
 
@@ -15,12 +16,14 @@ namespace NetCoreReact.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository userContext;
+        private readonly IUserRepository _userContext;
 
-        public UserController(IUserRepository userContext)
+        private readonly JWTService _JWTService;
+
+        public UserController(IUserRepository userContext, JWTService _JWTService)
         {
-            this.userContext = userContext;
-
+            this._userContext = userContext;
+            this._JWTService = _JWTService;
         }
         // GET: api/Login
         [HttpPost]
@@ -29,17 +32,26 @@ namespace NetCoreReact.Controllers
         {
             try
             {
-                var user= userContext.userByName(login.User);
+                var user= _userContext.userByName(login.User);
                 if (user != null)
                 {
-                    if (user.Password.Replace(" ", "") == userContext.Encrypt(login.Password))
+                    if (user.Password.Replace(" ", "") == _userContext.Encrypt(login.Password))
                     {
                         if (!user.IsConfirmed)
                             return Ok(new LoginResponse { Message = "Your account needed to be actived, please check your email", Status = false });
                         else
-                            return Ok(new LoginResponse { Message = "Success", Status = true,
-                                                          User = new UserResponse { IdUser = user.Id, Email = user.Email, User = user.UserName }
+                        {
+                            var token = _JWTService.Generate(user.Id);
+                            Response.Cookies.Append(key: "token", value: token, options: new CookieOptions
+                            {
+                               HttpOnly = true
                             });
+                            return Ok(value: 
+                                            new LoginResponse { Message = "Success", Status = true,
+                                                                User = new UserResponse { Token = token, Email = user.Email, User = user.UserName }
+                                    });
+                        }
+                            
                     }
                     else
                     {
@@ -59,7 +71,10 @@ namespace NetCoreReact.Controllers
         [HttpGet("{id}", Name = "Get")]
         public string Get(int id)
         {
-            return "value";
+            var jwt = Request.Cookies["token"];
+            var token = _JWTService.Verify(jwt);
+            int userID = int.Parse(token.Issuer);
+            return userID.ToString();
         }
 
         // POST: api/User
@@ -70,13 +85,13 @@ namespace NetCoreReact.Controllers
             {
                 User auxUser = new User();
                 auxUser.Name = user.Name;
-                auxUser.Password = userContext.Encrypt(user.Password);
+                auxUser.Password = _userContext.Encrypt(user.Password);
                 auxUser.Email = user.Email;
                 auxUser.UserName = user.UserName;
                 auxUser.IsSuperUser = false;
                 auxUser.IsConfirmed = false;
                 auxUser.CreationDate = DateTime.Now;
-                this.userContext.Add(auxUser);
+                this._userContext.Add(auxUser);
                 return Ok("The user was created successfully");
             }
             catch (Exception ex)

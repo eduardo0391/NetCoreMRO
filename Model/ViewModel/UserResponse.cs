@@ -7,7 +7,7 @@ namespace NetCoreReact.Model.ViewModel
 {
     public class UserResponse
     {
-        public int IdUser { get; set; }
+        public string Token { get; set; }
         public string User { get; set; }
         public string Email { get; set; }
     }
